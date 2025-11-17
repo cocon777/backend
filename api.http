@@ -1,0 +1,287 @@
+### Variables
+@baseUrl = http://127.0.0.1:8000/api
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzMjY4NjcxLCJpYXQiOjE3NjMyNjY4NzEsImp0aSI6IjM3MTliOGMzOGRlOTRkNjk5NGQ2MjEwZWQzMDkyYjU4IiwidXNlcl9pZCI6IjIifQ.DM8JBwJ7Z6vZHyMQiIuzTA1wZA_Qr75-ZHsBsWyNjPA
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzMjY4NjkxLCJpYXQiOjE3NjMyNjY4OTEsImp0aSI6ImMwMDJmMjdjMTM1NzRhNzNhMzI4MjhhZTBlMGI5ZDE1IiwidXNlcl9pZCI6IjEifQ.fF2UTV9vEUXomoR9qj7eeKg3QGXSPJisMoQxT0tU66I
+
+# AUTHENTICATION###########################################################
+### Register new user
+POST {{baseUrl}}/register/
+Content-Type: application/json
+
+{
+  "username": "user1",
+  "password": "123",
+  "password2": "123",
+  "email": "user1@gmail.com",
+  "first_name": "1",
+  "last_name": "user"
+}
+
+### Login user1
+POST {{baseUrl}}/login/
+Content-Type: application/json
+
+{
+  "username": "user1",
+  "password": "123"
+}
+
+### Login admin
+POST {{baseUrl}}/login/
+Content-Type: application/json
+
+{
+  "username": "py",
+  "password": "123456"
+}
+
+# PRODUCTS##########################################################################
+
+### Get all products
+GET {{baseUrl}}/products/
+
+### Get product by ID
+GET {{baseUrl}}/products/1/
+
+### Create new product (Admin only)
+POST {{baseUrl}}/products/
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "title": "test1",
+  "description": "test1",
+  "categoryId": 1,
+  "price": 1.11,
+  "discountPercentage": 11.11,
+  "stock": 11,
+  "thumbnail": "test.jpg"
+}
+
+### Update product (Admin only)
+PATCH {{baseUrl}}/products/6/
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+  "price": 22.22,
+  "stock": 22
+}
+
+### Delete product (Admin only)
+DELETE {{baseUrl}}/products/6/
+Authorization: Bearer {{adminToken}}
+
+### Filter products by category
+GET {{baseUrl}}/products/filter/?category=1
+
+### Sort products by price ascending
+GET {{baseUrl}}/products/filter/?sort=price_asc
+
+### Sort products by price descending
+GET {{baseUrl}}/products/filter/?sort=price_desc
+
+### Filter by category and sort by price
+GET {{baseUrl}}/products/filter/?category=1&sort=price_asc
+
+# CATEGORIES##############################################################################
+
+### Get all categories
+GET {{baseUrl}}/categories/
+
+### Get category by ID
+GET {{baseUrl}}/categories/1/
+
+# CART#####################################################################################
+
+### Get user's cart
+GET {{baseUrl}}/cart/
+Authorization: Bearer {{accessToken}}
+
+### Add product to cart
+POST {{baseUrl}}/cart/
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "product_id": 2,
+  "quantity": 4
+}
+
+### Get cart item by product_id
+GET {{baseUrl}}/cart/item/?product_id=1
+Authorization: Bearer {{accessToken}}
+
+### Update cart item quantity
+PATCH {{baseUrl}}/cart/item/update/?product_id=2
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "quantity": 5
+}
+
+### Remove item from cart
+DELETE {{baseUrl}}/cart/1/
+Authorization: Bearer {{accessToken}}
+
+# ORDERS###########################################################################
+
+### Create order
+POST {{baseUrl}}/order/create/
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "cartItems": [
+    {
+    "product_id": 1,
+    "quantity": 2
+  },
+  {
+    "product_id": 2,
+    "quantity": 4
+  }
+  ],
+  "address": "123 Main Street, City, Country"
+}
+
+###orders list
+GET {{baseUrl}}/order/
+Authorization: Bearer {{accessToken}}
+
+### Cancel order
+PATCH {{baseUrl}}/order/cancel/3/
+Authorization: Bearer {{accessToken}}
+
+###############################################
+# TEST SCENARIOS
+###############################################
+
+### Scenario 1: Complete user flow
+# 1. Register
+POST {{baseUrl}}/register/
+Content-Type: application/json
+
+{
+  "username": "newuser",
+  "password": "password123",
+  "email": "newuser@example.com"
+}
+
+###
+# 2. Login (copy access token from response)
+POST {{baseUrl}}/login/
+Content-Type: application/json
+
+{
+  "username": "newuser",
+  "password": "password123"
+}
+
+###
+# 3. Browse products
+GET {{baseUrl}}/products/
+
+###
+# 4. View product details
+GET {{baseUrl}}/products/1/
+
+###
+# 5. Add to cart
+POST {{baseUrl}}/cart/
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "product": 1,
+  "quantity": 2
+}
+
+###
+# 6. View cart
+GET {{baseUrl}}/cart/
+Authorization: Bearer {{accessToken}}
+
+###
+# 7. Update cart quantity
+PATCH {{baseUrl}}/cart/item/update/?product_id=1
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "quantity": 3
+}
+
+###
+# 8. Create order
+POST {{baseUrl}}/order/create/
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "cartItems": [
+    {
+      "product_id": 1,
+      "quantity": 3
+    }
+  ],
+  "address": "456 Test Avenue, Test City"
+}
+
+###############################################
+# ERROR TESTING
+###############################################
+
+### Test unauthorized access to cart
+GET {{baseUrl}}/cart/
+
+### Test invalid login credentials
+POST {{baseUrl}}/login/
+Content-Type: application/json
+
+{
+  "username": "wronguser",
+  "password": "wrongpassword"
+}
+
+### Test non-admin creating product
+POST {{baseUrl}}/products/
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Unauthorized Product",
+  "price": 50.00
+}
+
+### Test filter without parameters
+GET {{baseUrl}}/products/filter/
+
+### Test create order with empty cart
+POST {{baseUrl}}/order/create/
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "cartItems": [],
+  "address": "Test Address"
+}
+
+### Test create order without address
+POST {{baseUrl}}/order/create/
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "cartItems": [
+    {
+      "product_id": 1,
+      "quantity": 1
+    }
+  ]
+}
+
+### Test cancel already shipped order
+PATCH {{baseUrl}}/order/cancel/1/
+Authorization: Bearer {{accessToken}}
