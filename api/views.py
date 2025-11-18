@@ -191,7 +191,7 @@ def create_order(request):
 
         if product.stock < quantity:  # kiem tra ton kho
             return Response(
-                {"detail": f"Not enough stock for {product.name}."},
+                {"detail": f"Not enough stock for {product.product_name}."},
                 status=400
             )
 
